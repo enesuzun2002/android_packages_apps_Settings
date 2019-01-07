@@ -87,6 +87,8 @@ import org.lineageos.internal.util.LineageLockPatternUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import nexus.provider.NexusSettings;
+
 /**
  * Gesture lock pattern settings.
  */
@@ -999,18 +1001,20 @@ public class SecuritySettings extends SettingsPreferenceFragment
         private static final String KEY_VISIBLE_DOTS = "visibledots";
         private static final String KEY_LOCK_AFTER_TIMEOUT = "lock_after_timeout";
         private static final String KEY_POWER_INSTANTLY_LOCKS = "power_button_instantly_locks";
+        private static final String KEY_FINGERPRINT_UNLOCK_AFTER_REBOOT = "fingerprint_unlock_after_reboot";
         private static final String KEY_DIRECTLY_SHOW_LOCK = "directly_show_lock";
 
         // These switch preferences need special handling since they're not all stored in Settings.
         private static final String SWITCH_PREFERENCE_KEYS[] = { KEY_LOCK_AFTER_TIMEOUT,
                 KEY_VISIBLE_PATTERN, KEY_VISIBLE_ERROR_PATTERN, KEY_VISIBLE_DOTS,
-                KEY_POWER_INSTANTLY_LOCKS, KEY_DIRECTLY_SHOW_LOCK };
+                KEY_POWER_INSTANTLY_LOCKS, KEY_FINGERPRINT_UNLOCK_AFTER_REBOOT, KEY_DIRECTLY_SHOW_LOCK };
 
         private TimeoutListPreference mLockAfter;
         private SwitchPreference mVisiblePattern;
         private SwitchPreference mVisibleErrorPattern;
         private SwitchPreference mVisibleDots;
         private SwitchPreference mPowerButtonInstantlyLocks;
+        private SwitchPreference mFingerprintUnlockAfterReboot;
         private SwitchPreference mDirectlyShowLock;
 
         private TrustAgentManager mTrustAgentManager;
@@ -1056,6 +1060,10 @@ public class SecuritySettings extends SettingsPreferenceFragment
             if (mPowerButtonInstantlyLocks != null) {
                 mPowerButtonInstantlyLocks.setChecked(
                         mLockPatternUtils.getPowerButtonInstantlyLocks(MY_USER_ID));
+            }
+            if (mFingerprintUnlockAfterReboot != null) {
+                mFingerprintUnlockAfterReboot.setChecked(
+                        NexusSettings.getBoolForCurrentUser(getContext(), NexusSettings.FINGERPRINT_UNLOCK_AFTER_REBOOT, false));
             }
             final LineageLockPatternUtils lineageLockPatternUtils = mChooseLockSettingsHelper.lineageUtils();
             if (mDirectlyShowLock != null) {
@@ -1113,6 +1121,9 @@ public class SecuritySettings extends SettingsPreferenceFragment
                         R.string.lockpattern_settings_power_button_instantly_locks_summary,
                         trustAgentLabel));
             }
+
+            // auto unlock when using FaceUnlock
+            mFingerprintUnlockAfterReboot = (SwitchPreference) findPreference(KEY_FINGERPRINT_UNLOCK_AFTER_REBOOT);
 
             mOwnerInfoPreferenceController.displayPreference(getPreferenceScreen());
             mOwnerInfoPreferenceController.updateEnableState();
@@ -1212,6 +1223,8 @@ public class SecuritySettings extends SettingsPreferenceFragment
             String key = preference.getKey();
             if (KEY_POWER_INSTANTLY_LOCKS.equals(key)) {
                 mLockPatternUtils.setPowerButtonInstantlyLocks((Boolean) value, MY_USER_ID);
+            } else if (KEY_FINGERPRINT_UNLOCK_AFTER_REBOOT.equals(key)) {
+                NexusSettings.putBoolForCurrentUser(getContext(), NexusSettings.FINGERPRINT_UNLOCK_AFTER_REBOOT, (Boolean)value);
             } else if (KEY_DIRECTLY_SHOW_LOCK.equals(key)) {
                 final LineageLockPatternUtils lineageLockPatternUtils =
                         mChooseLockSettingsHelper.lineageUtils();

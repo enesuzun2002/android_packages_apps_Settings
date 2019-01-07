@@ -41,6 +41,10 @@
     <SwitchPreference
         android:key="power_button_instantly_locks"
         android:title="@string/lockpattern_settings_enable_power_button_instantly_locks" />
+    
+    <SwitchPreference
+        android:key="fingerprint_unlock_after_reboot"
+        android:title="@string/lockpattern_settings_enable_fingerprint_unlock_after_reboot" />
 
     <SwitchPreference
         android:key="directly_show_lock"
